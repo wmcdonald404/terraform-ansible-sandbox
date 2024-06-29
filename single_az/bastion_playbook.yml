@@ -1,5 +1,6 @@
 - name: Terraform post-provision Ansible provider
   hosts: all
+  remote_user: admin
 
   tasks:
     - name: Debug vars for hosts
