@@ -77,3 +77,35 @@ resource "aws_instance" "public_bastions" {
     InstanceRole = "bastion"
   }
 }
+
+##  user volume
+resource "aws_ebs_volume" "public_bastions_user_volumes" {
+  count             = length(aws_instance.public_bastions)
+  availability_zone = var.multi_azs[count.index]
+  size              = 10
+  type              = "gp3"
+  tags = {
+    InstanceName    = "bastion-${count.index}"
+    VolumeName      = "user-volume-${count.index}"
+    VolumePurpose   = "user-volume"
+  }
+}
+
+resource "ansible_host" "public_bastions" {
+  count     = length(aws_instance.public_bastions)
+  name      = aws_instance.public_bastions[count.index].public_ip
+  variables = {
+    ansible_user  = "admin",
+  }
+}
+
+resource "ansible_group" "bastions" {
+  name   = "bastions"
+}
+
+resource "ansible_playbook" "bastion_playbook" {
+  count      = length(aws_instance.public_bastions)
+  playbook   = "bastion_playbook.yml"
+  name       = aws_instance.public_bastions[count.index].public_ip
+  replayable = true
+}

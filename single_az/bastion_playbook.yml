@@ -1,0 +1,7 @@
+- name: Terraform post-provision Ansible provider
+  hosts: all
+
+  tasks:
+    - name: Debug vars for hosts
+      ansible.builtin.debug:
+        var: ansible_play_hosts

@@ -186,82 +186,9 @@ Building on the Terraform basics outlined [terraform-sandbox](https://github.com
 1. Once done with the test infrastructure, remove the VPC and all its resources to ensure costs are contained:
     ```
     wmcdonald@fedora:single_az$ terraform apply -destroy -auto-approve
-    aws_ebs_volume.data_volumes[0]: Refreshing state... [id=vol-0388826a426157260]
-    aws_vpc.main: Refreshing state... [id=vpc-0e195fd0ce5ab0432]
-    aws_ebs_volume.data_volumes[1]: Refreshing state... [id=vol-071c733a3bfc36e7e]
-    aws_internet_gateway.gw: Refreshing state... [id=igw-07972f3610e174dbd]
-    aws_subnet.private_subnets[1]: Refreshing state... [id=subnet-0bc01ecd4a6a008d8]
-    aws_subnet.public_subnets[0]: Refreshing state... [id=subnet-07009315c084917b0]
-    aws_subnet.public_subnets[1]: Refreshing state... [id=subnet-038a4c2814c4e278a]
-    aws_subnet.private_subnets[2]: Refreshing state... [id=subnet-0815ab789af673ee3]
-    aws_subnet.private_subnets[0]: Refreshing state... [id=subnet-0dba1cd8381e13083]
-    aws_subnet.public_subnets[2]: Refreshing state... [id=subnet-0ede4c0f954d9cf99]
-    aws_route_table.second_rt: Refreshing state... [id=rtb-0d18a10fbae6d5ce6]
-    aws_instance.instances[1]: Refreshing state... [id=i-0bba44e3da2690c49]
-    aws_instance.instances[0]: Refreshing state... [id=i-08f0fe7cc5ba2102c]
-    aws_volume_attachment.ebs_attachments[1]: Refreshing state... [id=vai-1083305993]
-    aws_volume_attachment.ebs_attachments[0]: Refreshing state... [id=vai-1308354494]
-    <output snipped>
-    Plan: 0 to add, 0 to change, 15 to destroy.
-    aws_volume_attachment.ebs_attachments[0]: Destroying... [id=vai-1308354494]
-    aws_volume_attachment.ebs_attachments[1]: Destroying... [id=vai-1083305993]
-    aws_subnet.public_subnets[2]: Destroying... [id=subnet-0ede4c0f954d9cf99]
-    aws_subnet.public_subnets[0]: Destroying... [id=subnet-07009315c084917b0]
-    aws_subnet.public_subnets[1]: Destroying... [id=subnet-038a4c2814c4e278a]
-    aws_route_table.second_rt: Destroying... [id=rtb-0d18a10fbae6d5ce6]
-    aws_subnet.public_subnets[2]: Destruction complete after 1s
-    aws_subnet.public_subnets[0]: Destruction complete after 1s
-    aws_route_table.second_rt: Destruction complete after 1s
-    aws_internet_gateway.gw: Destroying... [id=igw-07972f3610e174dbd]
-    aws_subnet.public_subnets[1]: Destruction complete after 1s
-    aws_internet_gateway.gw: Destruction complete after 0s
-    aws_volume_attachment.ebs_attachments[0]: Still destroying... [id=vai-1308354494, 10s elapsed]
-    aws_volume_attachment.ebs_attachments[1]: Still destroying... [id=vai-1083305993, 10s elapsed]
-    aws_volume_attachment.ebs_attachments[0]: Destruction complete after 11s
-    aws_volume_attachment.ebs_attachments[1]: Destruction complete after 11s
-    aws_ebs_volume.data_volumes[1]: Destroying... [id=vol-071c733a3bfc36e7e]
-    aws_ebs_volume.data_volumes[0]: Destroying... [id=vol-0388826a426157260]
-    aws_instance.instances[1]: Destroying... [id=i-0bba44e3da2690c49]
-    aws_instance.instances[0]: Destroying... [id=i-08f0fe7cc5ba2102c]
-    aws_ebs_volume.data_volumes[1]: Still destroying... [id=vol-071c733a3bfc36e7e, 10s elapsed]
-    aws_ebs_volume.data_volumes[0]: Still destroying... [id=vol-0388826a426157260, 10s elapsed]
-    aws_instance.instances[1]: Still destroying... [id=i-0bba44e3da2690c49, 10s elapsed]
-    aws_instance.instances[0]: Still destroying... [id=i-08f0fe7cc5ba2102c, 10s elapsed]
-    aws_ebs_volume.data_volumes[0]: Destruction complete after 10s
-    aws_ebs_volume.data_volumes[1]: Destruction complete after 10s
-    aws_instance.instances[1]: Still destroying... [id=i-0bba44e3da2690c49, 20s elapsed]
-    aws_instance.instances[0]: Still destroying... [id=i-08f0fe7cc5ba2102c, 20s elapsed]
-    aws_instance.instances[1]: Still destroying... [id=i-0bba44e3da2690c49, 30s elapsed]
-    aws_instance.instances[0]: Still destroying... [id=i-08f0fe7cc5ba2102c, 30s elapsed]
-    aws_instance.instances[0]: Destruction complete after 30s
-    aws_instance.instances[1]: Still destroying... [id=i-0bba44e3da2690c49, 40s elapsed]
-    aws_instance.instances[1]: Destruction complete after 40s
-    aws_subnet.private_subnets[0]: Destroying... [id=subnet-0dba1cd8381e13083]
-    aws_subnet.private_subnets[1]: Destroying... [id=subnet-0bc01ecd4a6a008d8]
-    aws_subnet.private_subnets[2]: Destroying... [id=subnet-0815ab789af673ee3]
-    aws_subnet.private_subnets[0]: Destruction complete after 1s
-    aws_subnet.private_subnets[2]: Destruction complete after 1s
-    aws_subnet.private_subnets[1]: Destruction complete after 1s
-    aws_vpc.main: Destroying... [id=vpc-0e195fd0ce5ab0432]
-    aws_vpc.main: Destruction complete after 0s
-
-    Apply complete! Resources: 0 added, 0 changed, 15 destroyed.
     ```
-
-2. Verify the VPC and instances are torn down:
-    ```
-    wmcdonald@fedora:single_az$ aws ec2 describe-instances | jq -c '.Reservations[].Instances[] | [.InstanceId, .State ]' 
-    ["i-08f0fe7cc5ba2102c",{"Code":48,"Name":"terminated"}]
-    ["i-0bba44e3da2690c49",{"Code":48,"Name":"terminated"}]
-    wmcdonald@fedora:single_az$ aws ec2 describe-vpcs 
-    {
-        "Vpcs": []
-    }
-    ```
-
-***Note***: The instances will still be shown but in a terminated state until they expire fully (~1 hour).
 
 ## References
-- [How to Build AWS VPC using Terraform – Step by Step](https://spacelift.io/blog/terraform-aws-vpc)
-- [Managing AWS Security Groups Through Terraform](https://spacelift.io/blog/terraform-security-group)
-- [.Multiple EC2 Instances using Terraform](https://gist.github.com/saissemet/7dead669cba388240cf67745cd535d40)
+- [ A Quick Look At Terraform Provider for Ansible](https://www.sysadminstories.com/2023/04/a-quick-look-at-terraform-provider-for.html)
+- [RHEL 9, KVM and the Red Hat Developer Subscription](https://www.unixsysadmin.com/ansible-terraform/)
+- [Providing Terraform with that Ansible Magic](https://www.ansible.com/blog/providing-terraform-with-that-ansible-magic/)
